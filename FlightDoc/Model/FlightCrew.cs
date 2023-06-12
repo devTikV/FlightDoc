@@ -6,6 +6,7 @@ namespace FlightDoc.Model
     public class FlightCrew
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FlightCrewId { get; set; }
 
         [ForeignKey("Flight")]

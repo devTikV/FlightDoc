@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "7aOcqJxeZ2gmkAg61mPBpQbfk7hgt6ZuNkUE66fEyw2zT1z3Tm8M9nVV3Al1xKIFUWhsG0NFj/EdFyolV+wmOQ==",
+  "dgSpecHash": "QCuCvuNa9wZJN7M6CJIgc2YVOgrVAyPNKum7uYvezuvxvJ50Oti4R4PiSl6tL//VxX2XK7VnS6BpL06//xbLVQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\openw\\Desktop\\FlightDoc\\FlightDoc.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\openw\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\openw\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
+    "C:\\Users\\openw\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\openw\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\openw\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.10\\microsoft.aspnetcore.authentication.jwtbearer.6.0.10.nupkg.sha512",
     "C:\\Users\\openw\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\7.0.5\\microsoft.aspnetcore.cryptography.internal.7.0.5.nupkg.sha512",

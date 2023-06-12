@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿/*using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlightDoc.Model
 {
     public class Token
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
@@ -16,4 +18,4 @@ namespace FlightDoc.Model
         // Quan hệ Token - User (Một token được liên kết với một người dùng)
         public virtual ICollection<UserToken> UserTokens { get; set; }
     }
-}
+}*/

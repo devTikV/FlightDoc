@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿/*using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
 namespace FlightDoc.Model
@@ -6,6 +6,7 @@ namespace FlightDoc.Model
     public class RolePermission
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RolePermissionId { get; set; }
 
         [ForeignKey("Role")]
@@ -18,4 +19,4 @@ namespace FlightDoc.Model
 
         // Thêm các trường thông tin khác liên quan đến quyền hạn và vai trò
     }
-}
+}*/

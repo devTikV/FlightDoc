@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿/*using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
 namespace FlightDoc.Model
@@ -6,6 +6,7 @@ namespace FlightDoc.Model
     public class UserToken
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         // Khóa ngoại cho User
@@ -18,4 +19,4 @@ namespace FlightDoc.Model
         public int TokenId { get; set; }
         public virtual Token Token { get; set; }
     }
-}
+}*/

@@ -1,19 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlightDoc.Model
 {
-    public class Role
+    public class Role : IdentityRole
     {
-        [Key]
-        public int RoleId { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string Name { get; set; }
-
-        // Thêm các trường thông tin khác về vai trò
-
-        public ICollection<UserRole> UserRoles { get; set; }
-        public ICollection<RolePermission> RolePermissions { get; set; }
+        // Các thuộc tính bổ sung cho CustomRole
+        public string Description { get; set; }
+        // ...
     }
+    
 }
