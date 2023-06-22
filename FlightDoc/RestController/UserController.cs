@@ -1,10 +1,23 @@
-﻿using FlightDoc;
+﻿using Flight_Doc_Manager_Systems.Models;
+using Flight_Doc_Manager_Systems.Services;
+using FlightDoc;
 using FlightDoc.Dto;
 using FlightDoc.Model;
+using FlightDoc.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
+
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
+using System.Text;
 
 [Route("api/v1/account")]
 public class UserController : ControllerBase
@@ -12,13 +25,21 @@ public class UserController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<Role> _roleManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly FlightDocDb flightDocDb;
-    public UserController(UserManager<ApplicationUser> userManager, RoleManager<Role> roleManager,
-        SignInManager<ApplicationUser> signInManager)
+    private readonly FlightDocDb _flightDocDb;
+    private readonly IConfiguration _configuration;
+   // private readonly JwtTokenGenerator _jwtTokenGenerator;
+    private readonly IAuthService _authService;
+
+    public UserController(IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<Role> roleManager,
+        SignInManager<ApplicationUser> signInManager, FlightDocDb flightDocDb, IAuthService authService)
     {
+        _configuration = configuration;
         _signInManager = signInManager;
         _userManager = userManager;
         _roleManager = roleManager;
+        _flightDocDb = flightDocDb;
+     //   _jwtTokenGenerator = jwtTokenGenerator;
+        _authService = authService;
     }
 
     [HttpPost("register")]
@@ -31,84 +52,120 @@ public class UserController : ControllerBase
                 var user = new ApplicationUser
                 {
                     Email = request.Email,
-                    UserName = request.Email,
+                    UserName = request.FullName,
                     FullName = request.FullName,
                     CCCD = request.CCCD,
                     Passport = request.Passport,
                     Password = request.Password
                 };
                 var result = await _userManager.CreateAsync(user, request.Password);
-                foreach (var error in result.Errors)
+                if (result.Succeeded)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    // Đăng nhập người dùng sau khi đăng ký thành công (tuỳ chọn)
+                    await _signInManager.SignInAsync(user, isPersistent: false);
 
+                    return Ok("Đăng ký thành công");
                 }
+                else
+                {
+                    // Xử lý lỗi khi ghi nhận người dùng
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+                
             }
-            else
-            {
-                return BadRequest("vui lòng dk email có đuôi \"@vietjetair.com ");
-            }
-
-            return Ok("thêm thành công user");
+            return BadRequest("vui lòng dk email có đuôi \"@vietjetair.com ");
         }
         // Trả về lỗi nếu dữ liệu không hợp lệ
         return BadRequest(ModelState);
     }
 
-    [HttpPost("users/{userId}/roles/{roleName}")]
-    public async Task<IActionResult> AddUserToRole(string userId, string roleName)
+    [HttpPost("admin/register")]
+    public async Task<IActionResult> RegisterAdmin([FromBody] AccountDto request)
     {
-        var user = await _userManager.FindByIdAsync(userId);
-        var role = await _roleManager.FindByNameAsync(roleName);
-        if (user != null)
+        if (ModelState.IsValid)
         {
-           await _userManager.AddToRoleAsync(user, roleName);
-
-            var userRole = new UserRole
+            if (request.Email.EndsWith("@vietjetair.com"))
             {
-                UserId = user.Id,
-                RoleId = role.Id,
-                CreatedAt = DateTime.UtcNow
-            };
-            await flightDocDb.UserRoles.AddAsync(userRole);
-            await flightDocDb.SaveChangesAsync();
+                var user = new ApplicationUser
+                {
 
-            return Ok("User added to role successfully.");
+                    UserName = request.Email,
+                    NormalizedEmail = request.Email,
+                    Email = request.Email,
+                    CCCD = request.CCCD,
+                    Passport = request.Passport,
+                    FullName = request.FullName,
+                    Password = request.Password
+                };
+                var result = await _userManager.CreateAsync(user, request.Password);
+
+                // Tạo vai trò "admin" nếu chưa tồn tại
+                var adminRole = new Role { Name = "Admin" };
+                await _roleManager.CreateAsync(adminRole);
+
+                await _userManager.AddToRoleAsync(user, "Admin");
+                var role = await _roleManager.FindByNameAsync("Admin");
+
+                return Ok("đăng ký thành công user role admin");
+
+            }
+
+            return BadRequest("đăng ký email với domain @vietjetair.com");
+
         }
-
-        return NotFound("User not found.");
+        return BadRequest(ModelState);
     }
 
-
-
-    // login
-    [HttpPost("dangnhap")]
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] AccountDto model)
+    [Authorize(Roles = "Admin")]
+    [HttpPost("admin/register/roleUser/{UserName}")]
+    public async Task<IActionResult> RegisterRoleUser(string UserName, [FromBody] string roleName)
     {
-        // Chuẩn hóa email
-        var normalizedEmail = model.Email.Trim().ToLower();
-
-        // Tìm kiếm người dùng trong cơ sở dữ liệu
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
-
+     
+        var user = await _userManager.FindByEmailAsync(UserName);
         if (user == null)
         {
-            // Người dùng không tồn tại
-            return StatusCode(401, "Email không hợp lệ.");
+            return BadRequest("sai tên user!");
         }
+            // Tạo vai trò nếu chưa tồn tại
+            var createRole = new Role { Name = $"{roleName}" };
+                await _roleManager.CreateAsync(createRole);
+            
+                await _userManager.AddToRoleAsync(user,$"{roleName}");
 
-        var result = await _userManager.CheckPasswordAsync(user, model.Password);
-
-        if (!result)
+            var role = await _roleManager.FindByNameAsync($"{roleName}");
+        if (role != null)
         {
-            // Mật khẩu không đúng
-            return StatusCode(401, "Mật khẩu không đúng.");
+            return Ok($"đăng ký thành công user role admin {role}");
         }
 
-        return Ok("Login thành công!");
+        return BadRequest("đăng ký vai trò cho user thất bại!");
+    }
+
+    [HttpPost("login")]
+    
+    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid payload");
+            var result = await _authService.Login(model);
+            if (result.StatusCode == 0)
+                return BadRequest(result.StatusMessage);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+          
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
     }
 }
+
+
 /*[HttpGet("layvaitro_user")]
 public async Task<IActionResult> GetIdUser([FromBody] AccountDto model)
 {

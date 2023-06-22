@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightDoc", "FlightDoc.csproj", "{19FA3EF8-752C-4B17-BA06-F05FB5778F40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlightDoc", "FlightDoc.csproj", "{19FA3EF8-752C-4B17-BA06-F05FB5778F40}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wwwroot", "wwwroot", "{8DD5F5E9-D701-4374-B4E3-B398161B35E0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "upload", "upload", "{94AB7BF0-F9E3-46D3-83EB-8338DAD6370B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +22,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{94AB7BF0-F9E3-46D3-83EB-8338DAD6370B} = {8DD5F5E9-D701-4374-B4E3-B398161B35E0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6A6A9D2-91C0-417C-9B31-2D10356682D1}

@@ -83,3 +83,4 @@ C:\Users\openw\Desktop\FlightDoc\obj\Debug\net7.0\FlightDoc.pdb
 C:\Users\openw\Desktop\FlightDoc\obj\Debug\net7.0\FlightDoc.genruntimeconfig.cache
 C:\Users\openw\Desktop\FlightDoc\obj\Debug\net7.0\ref\FlightDoc.dll
 C:\Users\openw\Desktop\FlightDoc\bin\Debug\net7.0\BCrypt.Net-Next.dll
+C:\Users\openw\Desktop\FlightDoc\bin\Debug\net7.0\Serilog.dll

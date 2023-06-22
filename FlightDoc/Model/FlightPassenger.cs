@@ -16,6 +16,7 @@ namespace FlightDoc.Model
         [ForeignKey("Passenger")]
         public int PassengerId { get; set; }
         public Passenger Passenger { get; set; }
+        public bool active { get; set; } = false;
 
         // Thêm các trường thông tin khác liên quan đến hành khách trong chuyến bay
     }

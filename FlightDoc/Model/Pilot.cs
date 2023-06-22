@@ -17,6 +17,7 @@ namespace FlightDoc.Model
         [MaxLength(50)]
         public string LicenseNumber { get; set; }
         // Thêm các thuộc tính thông tin khác về phi công
+        public bool active { get; set; } = false;
 
         public virtual ICollection<FlightCrew> FlightCrew { get; set; }
     }

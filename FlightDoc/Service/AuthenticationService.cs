@@ -1,84 +1,55 @@
-﻿/*using FlightDoc.Model;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Identity.Client;
-using static FlightDoc.Dto.AccountDto;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace FlightDoc.Service
+public class AuthenticationService
 {
-    public interface IAuthenticationService
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly IConfiguration _configuration;
+
+    public AuthenticationService(UserManager<IdentityUser> userManager, IConfiguration configuration)
     {
-        Task<Dto.AccountDto.AuthenticationResult> RegisterAsync(RegisterDto model);
-        Task<Dto.AccountDto.AuthenticationResult> LoginAsync(LoginDto model);
-        Task<Dto.AccountDto.AuthenticationResult> RefreshTokenAsync(string refreshToken);
+        _userManager = userManager;
+        _configuration = configuration;
     }
 
-    public class AuthenticationService : IAuthenticationService
+    public async Task<string> GenerateTokenAsync(string username, string password)
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
-        private readonly IConfiguration _configuration;
-        private readonly ITokenService _tokenService;
+        var user = await _userManager.FindByNameAsync(username);
 
-        public AuthenticationService(
-            UserManager<User> userManager,
-            RoleManager<Role> roleManager,
-            IConfiguration configuration,
-            ITokenService tokenService)
+        if (user == null)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _configuration = configuration;
-            _tokenService = tokenService;
+            return null;
         }
 
-        public async Task<AuthenticationResult> RegisterAsync(RegisterDto model)
+        var isValidPassword = await _userManager.CheckPasswordAsync(user, password);
+
+        if (!isValidPassword)
         {
-            // Kiểm tra logic và tạo người dùng mới
-            var user = new User { UserName = model.Username, Email = model.Email, FullName = model.FullName };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                return new AuthenticationResult { IsSuccess = true };
-            }
-
-            return new AuthenticationResult { IsSuccess = false, Errors = result.Errors };
+            return null;
         }
 
-        public async Task<AuthenticationResult> LoginAsync(LoginDto model)
+        var claims = new[]
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Email, user.Email)
+        };
 
-            if (user == null)
-            {
-                return new AuthenticationResult { IsSuccess = false, Errors = new[] { "Invalid username or password." } };
-            }
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken(
+            _configuration["Jwt:Issuer"],
+            _configuration["Jwt:Audience"],
+            claims,
+            expires: DateTime.Now.AddHours(1),
+            signingCredentials: credentials
+        );
 
-            var result = await _userManager.CheckPasswordAsync(user, model.Password);
-
-            if (!result)
-            {
-                return new AuthenticationResult { IsSuccess = false, Errors = new[] { "Invalid username or password." } };
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var tokenResult = await _tokenService.GenerateTokenAsync(user, roles);
-
-            return new AuthenticationResult { IsSuccess = true, Token = tokenResult.Token, RefreshToken = tokenResult.RefreshToken };
-        }
-
-        public async Task<AuthenticationResult> RefreshTokenAsync(string refreshToken)
-        {
-            var tokenResult = await _tokenService.RefreshTokenAsync(refreshToken);
-
-            if (tokenResult == null)
-            {
-                return new AuthenticationResult { IsSuccess = false, Errors = new[] { "Invalid refresh token." } };
-            }
-
-            return new AuthenticationResult { IsSuccess = true, Token = tokenResult.Token, RefreshToken = tokenResult.RefreshToken };
-        }
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 }
-*/

@@ -7,7 +7,7 @@ namespace FlightDoc.Model
     public class Role : IdentityRole
     {
         // Các thuộc tính bổ sung cho CustomRole
-        public string Description { get; set; }
+       
         // ...
     }
     

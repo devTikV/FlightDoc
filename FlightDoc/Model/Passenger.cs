@@ -26,7 +26,7 @@ namespace FlightDoc.Model
         public string PhoneNumber { get; set; }
 
         // Thêm các trường thông tin khác về hành khách
-
+        public bool active { get; set; } = false;
         public ICollection<FlightPassenger> FlightPassengers { get; set; }
     }
 
