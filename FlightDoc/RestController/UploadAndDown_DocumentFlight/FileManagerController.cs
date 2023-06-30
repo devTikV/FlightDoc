@@ -15,10 +15,10 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
         private string fileDirectory = "C:\\Users\\openw\\Desktop\\FlightDoc\\Uploads\\StaticContent\\";
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ReadFilePolicy")]
         [HttpGet("view/{fileName}")]
-public IActionResult ViewFile(string fileName)
-{
+    public IActionResult ViewFile(string fileName)
+    {
     try
     {
         string filePath = Path.Combine(fileDirectory, fileName);
@@ -42,8 +42,10 @@ public IActionResult ViewFile(string fileName)
     {
         return StatusCode(500, $"An error occurred: {ex.Message}");
     }
-}
-        [Authorize(Roles = "Admin")]
+    }
+
+
+        [Authorize(Policy = "UpFilePolicy")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
@@ -76,6 +78,7 @@ public IActionResult ViewFile(string fileName)
 
         // private string fileDownloadUrl = "http://localhost:5000/api/files/download";
         // lấy file từ hệ thống
+        [Authorize(Policy = "DownloadFilePolicy")]
         [HttpGet("download/{fileName}")]
         public IActionResult DownloadFileSystem(string fileName, [FromQuery] string savePath)
         {
@@ -112,7 +115,7 @@ public IActionResult ViewFile(string fileName)
 
 
 
-
+        [Authorize(Policy = "DownloadFilePolicy")]
         [HttpGet("custom/download")]
         public IActionResult DownloadFile([FromQuery] string fileUrl, [FromQuery] string savePath)
         {
@@ -149,7 +152,7 @@ public IActionResult ViewFile(string fileName)
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", Policy = "DownloadFilePolicy") ]
         [HttpDelete("delete/{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {
@@ -174,7 +177,6 @@ public IActionResult ViewFile(string fileName)
             }
         }
 
-        // Other CRUD methods (e.g., update and delete) can be implemented similarly
     }
 
 }

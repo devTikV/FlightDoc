@@ -79,7 +79,9 @@ namespace FlightDoc
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.AccessFailedCount)
                 .HasDefaultValue(0);
-
+            modelBuilder.Entity<ApplicationUser>()
+               .Property(u => u.Email)
+               .HasDefaultValue(0);
             modelBuilder.Entity<FlightCrew>()
                 .HasOne(fc => fc.Flight)
                 .WithMany(f => f.FlightCrew)

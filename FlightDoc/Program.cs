@@ -27,6 +27,31 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
+//cấu hình permission
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ReadFilePolicy", policy =>
+    {
+        policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
+        policy.RequireClaim("Permission", "ReadFile"); // Yêu cầu claim "ReadFile"
+    });
+
+    options.AddPolicy("UpFilePolicy", policy =>
+    {
+        policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
+        policy.RequireClaim("Permission", "UpFile"); // Yêu cầu claim "EditFile"
+    });
+    options.AddPolicy("DownloadFilePolicy", policy =>
+    {
+        policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
+        policy.RequireClaim("Permission", "DownloadFile"); // Yêu cầu claim "DownloadFile"
+    });
+    options.AddPolicy("DeleteFilePolicy", policy =>
+    {
+        policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
+        policy.RequireClaim("Permission", "DeleteFile"); // Yêu cầu claim "DeleteFile"
+    });
+});
 // Cấu hình dịch vụ tĩnh
 builder.Services.AddScoped<ImanageImage, ManageDocFlightSystem>();
 builder.Services.AddTransient < ImanageImage, ManageDocFlightSystem> ();

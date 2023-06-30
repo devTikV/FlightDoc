@@ -91,7 +91,7 @@ public class UserController : ControllerBase
             {
                 var user = new ApplicationUser
                 {
-
+                   
                     UserName = request.Email,
                     NormalizedEmail = request.Email,
                     Email = request.Email,
