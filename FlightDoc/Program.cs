@@ -34,25 +34,28 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ReadFilePolicy", policy =>
     {
         policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
-        policy.RequireClaim("Permission", "ReadFile"); // Yêu cầu claim "ReadFile"
+        policy.RequireClaim("Permission", "Permission.ReadFile"); // Yêu cầu claim "Permission.ReadFile"
     });
 
     options.AddPolicy("UpFilePolicy", policy =>
     {
         policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
-        policy.RequireClaim("Permission", "UpFile"); // Yêu cầu claim "EditFile"
+        policy.RequireClaim("Permission", "Permission.UpFile"); // Yêu cầu claim "Permission.UpFile"
     });
+
     options.AddPolicy("DownloadFilePolicy", policy =>
     {
         policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
-        policy.RequireClaim("Permission", "DownloadFile"); // Yêu cầu claim "DownloadFile"
+        policy.RequireClaim("Permission", "Permission.DownloadFile"); // Yêu cầu claim "Permission.DownloadFile"
     });
+
     options.AddPolicy("DeleteFilePolicy", policy =>
     {
         policy.RequireAuthenticatedUser(); // Yêu cầu người dùng xác thực
-        policy.RequireClaim("Permission", "DeleteFile"); // Yêu cầu claim "DeleteFile"
+        policy.RequireClaim("Permission", "Permission.DeleteFile"); // Yêu cầu claim "Permission.DeleteFile"
     });
 });
+
 // Cấu hình dịch vụ tĩnh
 builder.Services.AddScoped<ImanageImage, ManageDocFlightSystem>();
 builder.Services.AddTransient < ImanageImage, ManageDocFlightSystem> ();

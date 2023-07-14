@@ -52,34 +52,22 @@ public class UserController : ControllerBase
             {
                 var user = new ApplicationUser
                 {
+
+                    UserName = request.Email,
+                    NormalizedEmail = request.Email,
                     Email = request.Email,
-                    UserName = request.FullName,
-                    FullName = request.FullName,
                     CCCD = request.CCCD,
                     Passport = request.Passport,
+                    FullName = request.FullName,
                     Password = request.Password
                 };
                 var result = await _userManager.CreateAsync(user, request.Password);
-                if (result.Succeeded)
-                {
-                    // Đăng nhập người dùng sau khi đăng ký thành công (tuỳ chọn)
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-
-                    return Ok("Đăng ký thành công");
-                }
-                else
-                {
-                    // Xử lý lỗi khi ghi nhận người dùng
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                }
-                
+                return Ok("đăng ký thành công user role admin");
             }
-            return BadRequest("vui lòng dk email có đuôi \"@vietjetair.com ");
+
+            return BadRequest("đăng ký email với domain @vietjetair.com");
+
         }
-        // Trả về lỗi nếu dữ liệu không hợp lệ
         return BadRequest(ModelState);
     }
 

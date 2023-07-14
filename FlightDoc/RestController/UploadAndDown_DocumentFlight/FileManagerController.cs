@@ -12,40 +12,39 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
     public class FileController : ControllerBase
     {
         // địa chỉ tải file mặc định của hệ thống
-        private string fileDirectory = "C:\\Users\\openw\\Desktop\\FlightDoc\\Uploads\\StaticContent\\";
-
-
-        [Authorize(Policy = "ReadFilePolicy")]
-        [HttpGet("view/{fileName}")]
-    public IActionResult ViewFile(string fileName)
-    {
-    try
-    {
-        string filePath = Path.Combine(fileDirectory, fileName);
-
-        if (!System.IO.File.Exists(filePath))
-        {
-            return NotFound("khong tim thay file");
-        }
-
-        var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType(filePath, out var contentType))
-        {
-            contentType = "application/octet-stream";
-        }
-
-        var fileBytes = System.IO.File.ReadAllBytes(filePath);
-
-        return File("view thanh cong file len form " + fileBytes, contentType);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"An error occurred: {ex.Message}");
-    }
-    }
+        private string fileDirectory = "C:\\Users\\openw\\Desktop\\FlightDoc\\Uploads\\";
 
 
         [Authorize(Policy = "UpFilePolicy")]
+        [HttpGet("view/{fileName}")]
+        public IActionResult ViewFile(string fileName)
+        {
+            try
+            {
+                string filePath = Path.Combine(fileDirectory, fileName);
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound("Không tìm thấy file");
+                }
+
+                var provider = new FileExtensionContentTypeProvider();
+                if (!provider.TryGetContentType(filePath, out var contentType))
+                {
+                    contentType = "application/octet-stream";
+                }
+
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                return File(fileBytes, contentType);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
@@ -55,12 +54,12 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
                 {
                     return BadRequest("No file uploaded.");
                 }
-                var a = DateTime.Now.ToString();
-                string uniqueFileName =  "DocFight_" + file.FileName;
 
-                string filePath = Path.Combine("http://localhost:5000/uploads/", uniqueFileName);
-              
-               
+                var a = DateTime.Now.ToString();
+                string uniqueFileName = "DocFight_" + file.FileName;
+                string uploadsFolder = "uploads";
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
@@ -68,13 +67,14 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
 
                 // Save filePath to the database or perform any other necessary operations
 
-                return Ok(a + " upload thanh cong  " + uniqueFileName );
+                return Ok(a + " upload thành công  " + uniqueFileName);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         // private string fileDownloadUrl = "http://localhost:5000/api/files/download";
         // lấy file từ hệ thống
