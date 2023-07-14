@@ -3,6 +3,7 @@ using FlightDoc.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ApplicationUser = FlightDoc.Model.ApplicationUser;
 
 namespace FlightDoc
 {
@@ -24,8 +25,9 @@ namespace FlightDoc
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Role>().ToTable("Roles");
-            modelBuilder.Entity<UserRole>().ToTable("UserRoles");
+           /* modelBuilder.Entity<Role>().ToTable("Roles");*/
+          
+
 
             // set id user và role
             modelBuilder.Entity<Role>()
@@ -34,54 +36,8 @@ namespace FlightDoc
 
             modelBuilder.Entity<ApplicationUser>()
             .Property(u => u.Id)
-            .HasColumnType("nvarchar(100)");
-            // ///////////////////////////////////////////////////////
-            modelBuilder.Entity<UserRole>()
-             .Property(u => u.CreatedAt)
-             .HasDefaultValue(DateTime.UtcNow);
+             .HasColumnType("nvarchar(100)");
 
-           
-
-
-            /////////////////////////////////////////////////////////////
-            modelBuilder.Entity<ApplicationUser>()
-             .Property(u => u.EmailConfirmed)
-             .HasDefaultValue(true);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.PhoneNumberConfirmed)
-                .HasDefaultValue(false);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.TwoFactorEnabled)
-                .HasDefaultValue(false);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.AccessFailedCount)
-                .HasDefaultValue(false);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.LockoutEnd)
-              .HasDefaultValue(null);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.LockoutEnabled)
-                .HasDefaultValue(false);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.SecurityStamp)
-                .HasDefaultValue(Guid.NewGuid().ToString());
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.RefreshToken)
-                .HasDefaultValue(null);
-
-            modelBuilder.Entity<ApplicationUser>()
-                .Property(u => u.AccessFailedCount)
-                .HasDefaultValue(0);
-            modelBuilder.Entity<ApplicationUser>()
-               .Property(u => u.Email)
-               .HasDefaultValue(0);
             modelBuilder.Entity<FlightCrew>()
                 .HasOne(fc => fc.Flight)
                 .WithMany(f => f.FlightCrew)

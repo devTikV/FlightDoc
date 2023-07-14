@@ -4834,11 +4834,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\openw\\Desktop\\FlightDoc\\FlightDoc.csproj",
+      "projectUniqueName": "C:\\Users\\openw\\Documents\\GitHub\\FlightDoc\\FlightDoc\\FlightDoc.csproj",
       "projectName": "FlightDoc",
-      "projectPath": "C:\\Users\\openw\\Desktop\\FlightDoc\\FlightDoc.csproj",
+      "projectPath": "C:\\Users\\openw\\Documents\\GitHub\\FlightDoc\\FlightDoc\\FlightDoc.csproj",
       "packagesPath": "C:\\Users\\openw\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\openw\\Desktop\\FlightDoc\\obj\\",
+      "outputPath": "C:\\Users\\openw\\Documents\\GitHub\\FlightDoc\\FlightDoc\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\openw\\AppData\\Roaming\\NuGet\\NuGet.Config",

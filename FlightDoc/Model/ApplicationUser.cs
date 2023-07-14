@@ -9,12 +9,7 @@ namespace FlightDoc.Model
     {
 
         public string FullName { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
-
-       
-        public string Email { get; set; }
-
-       
+        public virtual ICollection<UserRole> UserRoles { get; set; }  
         public string Password { get; set; } 
 
         [MaxLength(12)]

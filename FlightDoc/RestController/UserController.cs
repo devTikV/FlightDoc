@@ -18,6 +18,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
+using ApplicationUser = FlightDoc.Model.ApplicationUser;
 
 [Route("api/v1/account")]
 public class UserController : ControllerBase
@@ -121,28 +122,50 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPost("admin/register/roleUser/{UserName}")]
-    public async Task<IActionResult> RegisterRoleUser(string UserName, [FromBody] string roleName)
+    public async Task<IActionResult> RegisterRoleUser(string UserName, [FromBody] RoleDto roleDto)
     {
-     
         var user = await _userManager.FindByEmailAsync(UserName);
         if (user == null)
         {
-            return BadRequest("sai tên user!");
+            return BadRequest("Sai tên user!");
         }
-            // Tạo vai trò nếu chưa tồn tại
-            var createRole = new Role { Name = $"{roleName}" };
-                await _roleManager.CreateAsync(createRole);
-            
-                await _userManager.AddToRoleAsync(user,$"{roleName}");
 
-            var role = await _roleManager.FindByNameAsync($"{roleName}");
+        // Kiểm tra xem giá trị roleName có khác null hoặc rỗng không
+        if (string.IsNullOrEmpty(roleDto.Name))
+        {
+            return BadRequest("Tên vai trò không được để trống!");
+        }
+
+        // Kiểm tra xem vai trò đã tồn tại hay chưa
+        var existingRole = await _roleManager.FindByNameAsync(roleDto.Name);
+        if (existingRole == null)
+        {
+            // Tạo vai trò nếu chưa tồn tại
+            var createRole = new Role { Name = roleDto.Name };
+            var createResult = await _roleManager.CreateAsync(createRole);
+            if (!createResult.Succeeded)
+            {
+                return BadRequest("Tạo vai trò thất bại!");
+            }
+        }
+
+        // Thêm vai trò cho người dùng
+        var addToRoleResult = await _userManager.AddToRoleAsync(user, roleDto.Name);
+        if (!addToRoleResult.Succeeded)
+        {
+            return BadRequest("Đăng ký vai trò cho user thất bại!");
+        }
+
+        // Lấy thông tin của vai trò đã tạo
+        var role = await _roleManager.FindByNameAsync(roleDto.Name);
         if (role != null)
         {
-            return Ok($"đăng ký thành công user role admin {role}");
+            return Ok($"Đăng ký thành công user role admin {role.Name}");
         }
 
-        return BadRequest("đăng ký vai trò cho user thất bại!");
+        return BadRequest("Đăng ký vai trò cho user thất bại!");
     }
+
 
     [HttpPost("login")]
     

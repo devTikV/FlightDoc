@@ -1,4 +1,5 @@
 ﻿using Flight_Doc_Manager_Systems.Services;
+using FlightDoc.Dto;
 using FlightDoc.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -30,33 +31,43 @@ namespace FlightDoc.RestController.Permission_for_Role
             //   _jwtTokenGenerator = jwtTokenGenerator;
             _authService = authService;
         }
+
+
         [HttpPost("add")]
-        public async Task<IActionResult> AddPermissionToRole(string roleName, string permission)
+        public async Task<IActionResult> AddPermissionToRole([FromBody] PermissionDto permissionDto)
         {
-            var role = await _roleManager.FindByNameAsync(roleName);
+            var role = await _roleManager.FindByNameAsync(permissionDto.RoleName);
             if (role == null)
             {
                 return NotFound();
             }
 
-            await _roleManager.AddClaimAsync(role, new Claim("Permission", $"Permission.{permission}"));
+            await _roleManager.AddClaimAsync(role, new Claim("Permission", $"Permission.{permissionDto.Permission}"));
 
-            return Ok();
+            return Ok($"THÊM QUYỀN {permissionDto.Permission} VÀO ROLE {permissionDto.RoleName} THÀNH CÔNG ");
         }
+
 
         [HttpPost("remove")]
-        public async Task<IActionResult> RemovePermissionFromRole(string roleName, string permission)
+        public async Task<IActionResult> RemovePermissionFromRole([FromBody] PermissionDto permissionDto)
         {
-            var role = await _roleManager.FindByNameAsync(roleName);
+            var role = await _roleManager.FindByNameAsync(permissionDto.RoleName);
             if (role == null)
             {
-                return NotFound();
+                return NotFound("Role not found.");
             }
 
-            await _roleManager.RemoveClaimAsync(role, new Claim("Permission", $"Permission.{permission}"));
-
-            return Ok();
+            var existingClaim = await _roleManager.GetClaimsAsync(role);
+            var claimToRemove = existingClaim.FirstOrDefault(c => c.Type == "Permission" && c.Value == $"Permission.{permissionDto.Permission}");
+            if (claimToRemove != null)
+            {
+                await _roleManager.RemoveClaimAsync(role, claimToRemove);
+                return Ok("Permission removed from role successfully.");
+            }
+            else
+            {
+                return BadRequest("Permission not found in role.");
+            }
         }
-
     }
 }

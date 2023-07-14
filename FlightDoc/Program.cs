@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FlightDoc.Security.Aspnet_Identity.Configuration;
 using Flight_Doc_Manager_Systems.Services;
 using FlightDoc.Service;
+using ApplicationUser = FlightDoc.Model.ApplicationUser;
 
 var builder = WebApplication.CreateBuilder(args);
 
