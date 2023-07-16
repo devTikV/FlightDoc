@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -27,45 +28,52 @@ namespace Flight_Doc_Manager_Systems.Services
 
         public async Task<TokenViewModel> Login(LoginModel model)
         {
-            TokenViewModel _TokenViewModel = new();
+            TokenViewModel tokenViewModel = new TokenViewModel();
             var user = await userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
-                _TokenViewModel.StatusCode = 0;
-                _TokenViewModel.StatusMessage = "Invalid username";
-                return _TokenViewModel;
+                tokenViewModel.StatusCode = 0;
+                tokenViewModel.StatusMessage = "Invalid username";
+                return tokenViewModel;
             }
+
             if (!await userManager.CheckPasswordAsync(user, model.Password))
             {
-                _TokenViewModel.StatusCode = 0;
-                _TokenViewModel.StatusMessage = "Invalid password";
-                return _TokenViewModel;
+                tokenViewModel.StatusCode = 0;
+                tokenViewModel.StatusMessage = "Invalid password";
+                return tokenViewModel;
             }
 
             var userRoles = await userManager.GetRolesAsync(user);
             var authClaims = new List<Claim>
-            {
-               new Claim(ClaimTypes.Name, user.UserName),
-               new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
+    {
+       new Claim(ClaimTypes.Name, user.UserName),
+       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+    };
 
             foreach (var userRole in userRoles)
             {
-                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await roleManager.FindByNameAsync(userRole);
+                if (role != null)
+                {
+                    var roleClaims = await roleManager.GetClaimsAsync(role);
+                    authClaims.AddRange(roleClaims);
+                }
             }
-            _TokenViewModel.AccessToken = GenerateToken(authClaims);
-            _TokenViewModel.RefreshToken = GenerateRefreshToken();
-            _TokenViewModel.StatusCode = 1;
-            _TokenViewModel.StatusMessage = "Success";
 
-            var _RefreshTokenValidityInDays = Convert.ToInt64(_configuration["JWTKey:RefreshTokenValidityInDays"]);
-            user.RefreshToken = _TokenViewModel.RefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_RefreshTokenValidityInDays);
+            tokenViewModel.AccessToken = GenerateToken(authClaims);
+            tokenViewModel.RefreshToken = GenerateRefreshToken();
+            tokenViewModel.StatusCode = 1;
+            tokenViewModel.StatusMessage = "Success";
+
+            var refreshTokenValidityInDays = Convert.ToInt64(_configuration["JWTKey:RefreshTokenValidityInDays"]);
+            user.RefreshToken = tokenViewModel.RefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
             await userManager.UpdateAsync(user);
 
-
-            return _TokenViewModel;
+            return tokenViewModel;
         }
+
 
         public async Task<TokenViewModel> GetRefreshToken(GetRefreshTokenViewModel model)
         {
@@ -86,6 +94,7 @@ namespace Flight_Doc_Manager_Systems.Services
                new Claim(ClaimTypes.Name, user.UserName),
                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
+           
             var newAccessToken = GenerateToken(authClaims);
             var newRefreshToken = GenerateRefreshToken();
 

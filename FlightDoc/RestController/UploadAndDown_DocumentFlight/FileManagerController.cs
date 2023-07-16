@@ -15,7 +15,7 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
         private string fileDirectory = "C:\\Users\\openw\\Desktop\\FlightDoc\\Uploads\\";
 
 
-        [Authorize(Policy = "UpFilePolicy")]
+        [Authorize(Policy = "ReadFilePolicy")]
         [HttpGet("view/{fileName}")]
         public IActionResult ViewFile(string fileName)
         {
