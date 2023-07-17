@@ -14,7 +14,7 @@ namespace FlightDoc
         }
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Passenger> Passengers { get; set; }
-      
+        public DbSet<BlacklistToken> BlacklistTokens { get; set; }
         /*public DbSet<Permission> Permissions { get; set; }*/
         public DbSet<FlightPassenger> FlightPassengers { get; set; }
         public DbSet<FlightCrew> FlightCrews { get; set; }

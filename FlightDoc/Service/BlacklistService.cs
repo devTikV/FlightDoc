@@ -1,56 +1,76 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.Extensions.Caching.Memory;
+using FlightDoc.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightDoc.Service
-{
-    public class BlacklistService : IBlacklistService
-    {
-        private readonly List<string> _blacklist;
-
-        public BlacklistService()
+{  
+        public class BlacklistService : IBlacklistService
         {
-            _blacklist = new List<string>();
+            private readonly IMemoryCache _cache;
+            private readonly FlightDocDb _dbContext;
+          
+        public BlacklistService(IMemoryCache cache, FlightDocDb dbContext )
+            {
+                _cache = cache;
+                _dbContext = dbContext;
+             
+            }
+
+            public async Task AddToBlacklistAsync(string token, DateTime expirationDate)
+            {
+                var blacklistToken = new BlacklistToken
+                {
+                    Token = token,
+                    ExpirationDate = expirationDate
+                };
+
+                _dbContext.BlacklistTokens.Add(blacklistToken);
+                await _dbContext.SaveChangesAsync();
+
+                CleanupExpiredTokens();
+                await CacheBlacklistTokens();
+
+                await Task.CompletedTask;
+            }
+
+        public async Task<bool> IsTokenBlacklistedAsync(string token)
+        {
+            var blacklist = await _cache.GetOrCreateAsync("blacklist", async entry =>
+            {
+                // Kiểm tra xem cache còn tồn tại hay không
+                if (entry == null)
+                {
+                    // Thực hiện truy vấn cơ sở dữ liệu để lấy danh sách token
+                    var tokens = await _dbContext.BlacklistTokens.Select(t => t.Token).ToListAsync();
+                    entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30)); // Cache for 30 minutes
+                    entry.Value = tokens; // Cập nhật danh sách token trong cache
+                }
+
+                return entry.Value as List<string>;
+            });
+
+            return blacklist.Contains(token);
         }
 
-        public Task AddToBlacklistAsync(string token)
-        {
-            _blacklist.Add(token);
-            Console.WriteLine(String.Join(", ", _blacklist));
-            CleanupExpiredTokens();
-            return Task.CompletedTask;
-        }
+
+
 
         private void CleanupExpiredTokens()
-        {
-            List<string> tokensToRemove = new List<string>();
-
-            foreach (var token in _blacklist)
             {
-                if (IsTokenExpired(token))
-                {
-                    tokensToRemove.Add(token);
-                }
+                var expiredTokens = _dbContext.BlacklistTokens
+                    .Where(t => t.ExpirationDate < DateTime.UtcNow)
+                    .ToList();
+
+                _dbContext.BlacklistTokens.RemoveRange(expiredTokens);
+                _dbContext.SaveChanges();
             }
 
-            foreach (var token in tokensToRemove)
+            private async Task CacheBlacklistTokens()
             {
-                _blacklist.Remove(token);
+                var tokens = await _dbContext.BlacklistTokens.Select(t => t.Token).ToListAsync();
+                _cache.Set("blacklist", tokens, TimeSpan.FromMinutes(30)); // Cache for 30 minutes
             }
-        }
-
-        private bool IsTokenExpired(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-
-            var expirationDate = jwtToken.ValidTo;
-            var now = DateTime.UtcNow;
-
-            return now > expirationDate;
-        }
-
-        public Task<List<string>> GetBlacklistAsync()
-        {
-            return Task.FromResult(_blacklist);
         }
     }
-}
+
+
