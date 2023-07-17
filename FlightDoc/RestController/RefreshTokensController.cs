@@ -1,5 +1,4 @@
-﻿
-using Flight_Doc_Manager_Systems.Models;
+﻿using Flight_Doc_Manager_Systems.Models;
 using Flight_Doc_Manager_Systems.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -7,21 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using FlightDoc.Model;
+using Microsoft.AspNetCore.Authentication;
+using FlightDoc.Service;
 
 namespace Flight_Doc_Manager_Systems.RestControllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/account/logout")]
     [ApiController]
     public class RefreshTokensController : ControllerBase
     {
         private readonly IAuthService _authService;
-        
+        private readonly IBlacklistService _blacklistService;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
-        public RefreshTokensController(IAuthService authService, IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public RefreshTokensController(IAuthService authService, IConfiguration configuration, UserManager<ApplicationUser> userManager, IBlacklistService blacklistService)
         {
             _authService = authService;
-          
+            _blacklistService = blacklistService;
             _configuration = configuration;
             _userManager = userManager;
         }
@@ -45,22 +46,25 @@ namespace Flight_Doc_Manager_Systems.RestControllers
             }
             catch (Exception ex)
             {
-             
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
         [Authorize]
         [HttpPost]
-        [Route("revoke/{username}")]
-        public async Task<IActionResult> Revoke(string username)
+        [Route("logout")]
+        public async Task<IActionResult> Logout()
         {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null) return BadRequest("Invalid user name");
+            // Lấy access token từ tiêu đề Authorization
+            string accessToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            user.RefreshToken = null;
-            await _userManager.UpdateAsync(user);
+            // Thêm access token vào danh sách đen
+            await _blacklistService.AddToBlacklistAsync(accessToken);
 
-            return Ok("Success");
+            // Đăng xuất người dùng
+            await HttpContext.SignOutAsync();
+
+            return Ok("Logged out successfully.");
         }
 
         [Authorize]

@@ -3,7 +3,10 @@ using Flight_Doc_Manager_Systems.Services;
 using FlightDoc;
 using FlightDoc.Dto;
 using FlightDoc.Model;
-using FlightDoc.Security;
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -174,6 +177,9 @@ public class UserController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
+
+   
+
 }
 
 

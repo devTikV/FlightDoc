@@ -1,5 +1,5 @@
 ﻿using FlightDoc.Model;
-using FlightDoc.Security;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

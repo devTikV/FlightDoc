@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Repositories\" />
     <Folder Include="Uploads\StaticContent\" />
   </ItemGroup>
 
