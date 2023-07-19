@@ -1,50 +1,99 @@
-﻿/*using FlightDoc.Model;
+﻿using FlightDoc.Dto;
+using FlightDoc.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlightDoc.RestController
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v1/account")]
     public class GetUserAndRole : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<Role> _roleManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly FlightDocDb _flightDocDb;
-        public GetUserAndRole(UserManager<ApplicationUser> userManager, RoleManager<Role> roleManager,
-            SignInManager<ApplicationUser> signInManager, FlightDocDb flightDocDb)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public GetUserAndRole(RoleManager<Role> roleManager, UserManager<ApplicationUser> userManager)
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
             _roleManager = roleManager;
-            _flightDocDb = flightDocDb;
+            _userManager = userManager;
         }
-        public async Task<List<IdentityUser>> GetAllUsersAsync()
+        [Authorize(Roles = "Admin")]
+        [HttpGet("role")]
+        public async Task<ActionResult<List<Role>>> GetAllRolesAsync()
         {
-            return await _userManager.Users.ToListAsync();
+            var roles = await _roleManager.Roles.ToListAsync();
+            return Ok(roles);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("user")]
+        public async Task<List<AccountDto>> GetAllUsersAsync()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            var userDTOs = users.Select(user => new AccountDto(user)).ToList();
+            return userDTOs;
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{user}")]
+        public async Task<ActionResult<List<string>>> GetUserRolesByNameAsync(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(roles.ToList());
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("permissionRole/{role}")]
+        public async Task<ActionResult<List<string>>> GetRolePermissionsAsync(string roleName)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            var roleClaims = await _roleManager.GetClaimsAsync(role);
+            var rolePermissions = roleClaims.Where(c => c.Type == "Permission").Select(c => c.Value).ToList();
+
+            return Ok(rolePermissions);
         }
 
-        public async Task<IdentityUser> GetUserByIdAsync(string userId)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("permission/{user}")]
+        public async Task<ActionResult<List<string>>> GetUserPermissionsAsync(string username)
         {
-            return await _userManager.FindByIdAsync(userId);
-        }
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-        public async Task<List<string>> GetUserRolesAsync(IdentityUser user)
-        {
-            return new List<string>(await _userManager.GetRolesAsync(user));
-        }
+            var userRoles = await _userManager.GetRolesAsync(user);
 
-        public async Task<IdentityRole> GetRoleByIdAsync(string roleId)
-        {
-            return await _roleManager.FindByIdAsync(roleId);
-        }
+            var userPermissions = new List<string>();
 
-        public async Task<List<IdentityRole>> GetAllRolesAsync()
-        {
-            return await _roleManager.Roles.ToListAsync();
+            foreach (var roleName in userRoles)
+            {
+                var role = await _roleManager.FindByNameAsync(roleName);
+                if (role != null)
+                {
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    var rolePermissions = roleClaims.Where(c => c.Type == "Permission").Select(c => c.Value);
+                    userPermissions.AddRange(rolePermissions);
+                }
+            }
+
+            return Ok(userPermissions);
         }
     }
 }
-*/

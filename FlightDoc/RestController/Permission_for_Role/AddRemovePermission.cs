@@ -43,10 +43,19 @@ namespace FlightDoc.RestController.Permission_for_Role
                 return NotFound();
             }
 
+            var existingClaim = (await _roleManager.GetClaimsAsync(role))
+                .FirstOrDefault(c => c.Type == "Permission" && c.Value == $"Permission.{permissionDto.Permission}");
+
+            if (existingClaim != null)
+            {
+                return BadRequest("Quyền đã tồn tại trong vai trò.");
+            }
+
             await _roleManager.AddClaimAsync(role, new Claim("Permission", $"Permission.{permissionDto.Permission}"));
 
-            return Ok($"THÊM QUYỀN {permissionDto.Permission} VÀO ROLE {permissionDto.RoleName} THÀNH CÔNG ");
+            return Ok($"Thêm quyền {permissionDto.Permission} vào vai trò {permissionDto.RoleName} thành công.");
         }
+
 
 
         [HttpPost("remove")]
