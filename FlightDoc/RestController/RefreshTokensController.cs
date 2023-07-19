@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using FlightDoc.Model;
 using Microsoft.AspNetCore.Authentication;
 using FlightDoc.Service;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Flight_Doc_Manager_Systems.RestControllers
 {
@@ -58,14 +59,20 @@ namespace Flight_Doc_Manager_Systems.RestControllers
             // Lấy access token từ tiêu đề Authorization
             string accessToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
+            // Giải mã access token và lấy thông tin expiration time
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var decodedToken = tokenHandler.ReadJwtToken(accessToken);
+            var expirationTime = decodedToken.ValidTo;
+
             // Thêm access token vào danh sách đen
-            await _blacklistService.AddToBlacklistAsync(accessToken);
+            await _blacklistService.AddToBlacklistAsync(accessToken, expirationTime);
 
             // Đăng xuất người dùng
             await HttpContext.SignOutAsync();
 
             return Ok("Logged out successfully.");
         }
+
 
         [Authorize]
         [HttpPost]

@@ -1,5 +1,4 @@
 ﻿using BCrypt.Net;
-using FlightDoc;
 using FlightDoc.Model;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +15,7 @@ using Flight_Doc_Manager_Systems.Services;
 using FlightDoc.Service;
 using ApplicationUser = FlightDoc.Model.ApplicationUser;
 using FlightDoc.Security;
+using FlightDoc.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +23,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<FlightDocDb>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
- //Đọc cấu hình từ appsettings.json
+builder.Services.AddScoped<TokenAuthenticationMiddleware>();
+builder.Services.AddScoped<IBlacklistService, BlacklistService>();
+
+//Đọc cấu hình từ appsettings.json
 var configuration = new ConfigurationBuilder()
     .SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("appsettings.json")
@@ -63,7 +66,10 @@ builder.Services.AddTransient < ImanageImage, ManageDocFlightSystem> ();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 
-builder.Services.AddTransient<IBlacklistService, BlacklistService>();
+builder.Services.AddMemoryCache();
+
+
+
 
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<RoleManager<Role>>();
@@ -139,8 +145,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors(x => x
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithOrigins("http://localhost:3000/")
-                .SetIsOriginAllowed(origin => true) // allow any origin
+                .WithOrigins("https://localhost:3000", "http://localhost:5000", "https://localhost:5001")
                 .AllowCredentials());
 
 app.UseHttpsRedirection();

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ApplicationUser = FlightDoc.Model.ApplicationUser;
 
-namespace FlightDoc
+namespace FlightDoc.Helper
 {
     public class FlightDocDb : IdentityDbContext<IdentityUser, IdentityRole, string, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
@@ -25,8 +25,8 @@ namespace FlightDoc
         {
             base.OnModelCreating(modelBuilder);
 
-           /* modelBuilder.Entity<Role>().ToTable("Roles");*/
-          
+            /* modelBuilder.Entity<Role>().ToTable("Roles");*/
+
 
 
             // set id user và role

@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using FlightDoc.Model;
 using Microsoft.EntityFrameworkCore;
+using FlightDoc.Helper;
 
 namespace FlightDoc.Service
-{  
-        public class BlacklistService : IBlacklistService
+{
+    public class BlacklistService : IBlacklistService
         {
             private readonly IMemoryCache _cache;
             private readonly FlightDocDb _dbContext;
@@ -30,8 +31,8 @@ namespace FlightDoc.Service
                 CleanupExpiredTokens();
                 await CacheBlacklistTokens();
 
-                await Task.CompletedTask;
-            }
+             await Task.CompletedTask;
+        }
 
         public async Task<bool> IsTokenBlacklistedAsync(string token)
         {
@@ -49,8 +50,15 @@ namespace FlightDoc.Service
                 return entry.Value as List<string>;
             });
 
+            if (blacklist == null)
+            {
+                return false;
+            }
+
             return blacklist.Contains(token);
         }
+
+
 
 
 

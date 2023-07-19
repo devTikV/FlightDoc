@@ -1,6 +1,5 @@
 ﻿using Flight_Doc_Manager_Systems.Models;
 using Flight_Doc_Manager_Systems.Services;
-using FlightDoc;
 using FlightDoc.Dto;
 using FlightDoc.Model;
 
@@ -22,6 +21,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
 using ApplicationUser = FlightDoc.Model.ApplicationUser;
+using FlightDoc.Helper;
 
 [Route("api/v1/account")]
 public class UserController : ControllerBase

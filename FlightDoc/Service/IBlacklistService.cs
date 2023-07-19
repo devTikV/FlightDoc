@@ -1,4 +1,6 @@
-﻿namespace FlightDoc.Service
+﻿using FlightDoc.Model;
+
+namespace FlightDoc.Service
 {
     public interface IBlacklistService
     {
