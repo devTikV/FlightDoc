@@ -51,25 +51,31 @@ public class UserController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            if (request.Email.EndsWith("@vietjetair.com"))
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser == null)
             {
-                var user = new ApplicationUser
+                if (request.Email.EndsWith("@vietjetair.com"))
                 {
+                    var user = new ApplicationUser
+                    {
+                        UserName = request.Email,
+                        NormalizedEmail = request.Email,
+                        Email = request.Email,
+                        CCCD = request.CCCD,
+                        Passport = request.Passport,
+                        FullName = request.FullName,
+                        Password = request.Password
+                    };
+                    var result = await _userManager.CreateAsync(user, request.Password);
+                    return Ok("đăng ký thành công user role admin");
+                }
 
-                    UserName = request.Email,
-                    NormalizedEmail = request.Email,
-                    Email = request.Email,
-                    CCCD = request.CCCD,
-                    Passport = request.Passport,
-                    FullName = request.FullName,
-                    Password = request.Password
-                };
-                var result = await _userManager.CreateAsync(user, request.Password);
-                return Ok("đăng ký thành công user role admin");
+                return BadRequest("đăng ký email với domain @vietjetair.com");
             }
-
-            return BadRequest("đăng ký email với domain @vietjetair.com");
-
+            else
+            {
+                return Conflict("Người dùng đã tồn tại");
+            }
         }
         return BadRequest(ModelState);
     }
@@ -79,11 +85,13 @@ public class UserController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            if (request.Email.EndsWith("@vietjetair.com"))
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser == null)
+            {
+                if (request.Email.EndsWith("@vietjetair.com"))
             {
                 var user = new ApplicationUser
-                {
-                   
+                {       
                     UserName = request.Email,
                     NormalizedEmail = request.Email,
                     Email = request.Email,
@@ -105,8 +113,12 @@ public class UserController : ControllerBase
 
             }
 
-            return BadRequest("đăng ký email với domain @vietjetair.com");
-
+                return BadRequest("đăng ký email với domain @vietjetair.com");
+            }
+            else
+            {
+                return Conflict("Người dùng đã tồn tại");
+            }
         }
         return BadRequest(ModelState);
     }

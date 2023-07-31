@@ -44,7 +44,7 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
             }
         }
 
-
+        [Authorize(Policy = "UpFilePolicy")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
@@ -152,7 +152,7 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
             }
         }
 
-        [Authorize(Roles = "Admin", Policy = "DownloadFilePolicy") ]
+        [Authorize(Roles = "Admin", Policy = "DeleteFilePolicy") ]
         [HttpDelete("delete/{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {

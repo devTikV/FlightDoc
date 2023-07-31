@@ -16,6 +16,8 @@ using FlightDoc.Service;
 using ApplicationUser = FlightDoc.Model.ApplicationUser;
 using FlightDoc.Security;
 using FlightDoc.Helper;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,9 +70,6 @@ builder.Services.AddTransient<IAuthService, AuthService>();
 
 builder.Services.AddMemoryCache();
 
-
-
-
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<RoleManager<Role>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
@@ -79,6 +78,10 @@ builder.Services.Configure<PasswordHasherOptions>(options =>
 {
     options.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3;
 });
+
+// Cấu hình Google Authentication
+
+
 // Cấu hình Identity
 builder.Services.AddIdentity<ApplicationUser, Role>
     (options =>

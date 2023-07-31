@@ -1,14 +1,11 @@
 ﻿using FlightDoc.Dto;
 using FlightDoc.Model;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace FlightDoc.RestController
 {
@@ -24,6 +21,7 @@ namespace FlightDoc.RestController
             _roleManager = roleManager;
             _userManager = userManager;
         }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("role")]
         public async Task<ActionResult<List<Role>>> GetAllRolesAsync()
@@ -31,6 +29,7 @@ namespace FlightDoc.RestController
             var roles = await _roleManager.Roles.ToListAsync();
             return Ok(roles);
         }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("user")]
         public async Task<List<AccountDto>> GetAllUsersAsync()
@@ -39,6 +38,7 @@ namespace FlightDoc.RestController
             var userDTOs = users.Select(user => new AccountDto(user)).ToList();
             return userDTOs;
         }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("{user}")]
         public async Task<ActionResult<List<string>>> GetUserRolesByNameAsync(string username)
@@ -52,6 +52,7 @@ namespace FlightDoc.RestController
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(roles.ToList());
         }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("permissionRole/{role}")]
         public async Task<ActionResult<List<string>>> GetRolePermissionsAsync(string roleName)
