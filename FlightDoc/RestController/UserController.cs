@@ -31,7 +31,7 @@ public class UserController : ControllerBase
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly FlightDocDb _flightDocDb;
     private readonly IConfiguration _configuration;
-   // private readonly JwtTokenGenerator _jwtTokenGenerator;
+    // private readonly JwtTokenGenerator _jwtTokenGenerator;
     private readonly IAuthService _authService;
 
     public UserController(IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<Role> roleManager,
@@ -42,7 +42,7 @@ public class UserController : ControllerBase
         _userManager = userManager;
         _roleManager = roleManager;
         _flightDocDb = flightDocDb;
-     //   _jwtTokenGenerator = jwtTokenGenerator;
+        //   _jwtTokenGenerator = jwtTokenGenerator;
         _authService = authService;
     }
 
@@ -89,29 +89,29 @@ public class UserController : ControllerBase
             if (existingUser == null)
             {
                 if (request.Email.EndsWith("@vietjetair.com"))
-            {
-                var user = new ApplicationUser
-                {       
-                    UserName = request.Email,
-                    NormalizedEmail = request.Email,
-                    Email = request.Email,
-                    CCCD = request.CCCD,
-                    Passport = request.Passport,
-                    FullName = request.FullName,
-                    Password = request.Password
-                };
-                var result = await _userManager.CreateAsync(user, request.Password);
+                {
+                    var user = new ApplicationUser
+                    {
+                        UserName = request.Email,
+                        NormalizedEmail = request.Email,
+                        Email = request.Email,
+                        CCCD = request.CCCD,
+                        Passport = request.Passport,
+                        FullName = request.FullName,
+                        Password = request.Password
+                    };
+                    var result = await _userManager.CreateAsync(user, request.Password);
 
-                // Tạo vai trò "admin" nếu chưa tồn tại
-                var adminRole = new Role { Name = "Admin" };
-                await _roleManager.CreateAsync(adminRole);
+                    // Tạo vai trò "admin" nếu chưa tồn tại
+                    var adminRole = new Role { Name = "Admin" };
+                    await _roleManager.CreateAsync(adminRole);
 
-                await _userManager.AddToRoleAsync(user, "Admin");
-                var role = await _roleManager.FindByNameAsync("Admin");
+                    await _userManager.AddToRoleAsync(user, "Admin");
+                    var role = await _roleManager.FindByNameAsync("Admin");
 
-                return Ok("đăng ký thành công user role admin");
+                    return Ok("đăng ký thành công user role admin");
 
-            }
+                }
 
                 return BadRequest("đăng ký email với domain @vietjetair.com");
             }
@@ -171,7 +171,7 @@ public class UserController : ControllerBase
 
 
     [HttpPost("login")]
-    
+
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         try
@@ -185,12 +185,12 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
-          
+
             return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
 
-   
+
 
 }
 

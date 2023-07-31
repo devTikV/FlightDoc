@@ -2,7 +2,6 @@
 using FlightDoc.Dto;
 using FlightDoc.Helper;
 using FlightDoc.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

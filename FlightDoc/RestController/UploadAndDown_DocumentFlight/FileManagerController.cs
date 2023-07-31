@@ -152,7 +152,7 @@ namespace FlightDoc.RestController.UploadAndDown_DocumentFlight
             }
         }
 
-        [Authorize(Roles = "Admin", Policy = "DeleteFilePolicy") ]
+        [Authorize(Roles = "Admin", Policy = "DeleteFilePolicy")]
         [HttpDelete("delete/{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {

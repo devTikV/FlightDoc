@@ -40,21 +40,30 @@ namespace FlightDoc.RestController
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("{user}")]
-        public async Task<ActionResult<List<string>>> GetUserRolesByNameAsync(string username)
+        [HttpGet("{userName}")]
+        public async Task<ActionResult<UserWithRolesDto>> GetUserRolesByNameAsync(string userName)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByNameAsync(userName);
             if (user == null)
             {
                 return NotFound();
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            return Ok(roles.ToList());
+            var userDto = new AccountDto(user);
+
+            var userWithRoles = new UserWithRolesDto
+            {
+                User = userDto,
+                Roles = roles.ToList()
+            };
+
+            return Ok(userWithRoles);
         }
 
+
         [Authorize(Roles = "Admin")]
-        [HttpGet("permissionRole/{role}")]
+        [HttpGet("permissionRole/{roleName}")]
         public async Task<ActionResult<List<string>>> GetRolePermissionsAsync(string roleName)
         {
             var role = await _roleManager.FindByNameAsync(roleName);
@@ -70,10 +79,10 @@ namespace FlightDoc.RestController
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("permission/{user}")]
-        public async Task<ActionResult<List<string>>> GetUserPermissionsAsync(string username)
+        [HttpGet("permission/{userName}")]
+        public async Task<ActionResult<List<string>>> GetUserPermissionsAsync(string userName)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByNameAsync(userName);
             if (user == null)
             {
                 return NotFound();
